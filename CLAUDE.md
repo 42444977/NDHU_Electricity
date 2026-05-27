@@ -12,7 +12,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 部署
 
-透過 GitHub Pages 託管。將 `index.html` 推送至 `main` 分支，Pages 從 repo 根目錄提供服務。
+- **GitHub 倉庫**：`https://github.com/42444977/NDHU_Electricity`
+- **線上網址**：`https://42444977.github.io/NDHU_Electricity/`
+- 更新方式：修改 `index.html` 後 `git add index.html && git commit && git push`，Pages 自動重新部署（約 1 分鐘）。
 
 ## 架構
 
