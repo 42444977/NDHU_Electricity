@@ -22,7 +22,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **資料層** — `localStorage` 鍵值 `dorm_elec_v1`，儲存格式為 JSON 陣列 `[{ id, ts, bal }]`，其中 `ts` 為 Unix 毫秒時間戳，`bal` 為剩餘電費餘額（新台幣）。
 
-**電費計費規則（每月1日重置）**
+**電費計費規則（每月 1 日重置）**
 - 0–110 度 → $2.1/度（第一級距上限：$231）
 - 111–700 度 → $2.68/度（累計第二級距上限：$1812.2）
 - 701 度以上 → $3.97/度
@@ -34,4 +34,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **已知限制**：若使用者在兩次記錄之間同時充值又消耗電費，只能觀察到餘額淨變化。偵測到餘額增加時會顯示充值警示橫幅，提示前後各記錄一次。
 
-**圖表** — Chart.js 4.x 從 CDN（`cdn.jsdelivr.net`）載入，渲染至 `<canvas>` 元素。每次呼叫 `renderDashboard()` 時銷毀並重建。
+**圖表** — Chart.js 4.x 搭配 `chartjs-adapter-date-fns` 從 CDN（`cdn.jsdelivr.net`）載入。X 軸使用 `type: 'time'` 時間尺度，根據資料涵蓋的時間範圍自動選擇刻度單位（分鐘、小時、天），刻度間距均等。資料點格式為 `{ x: ts, y: bal }`（ts 為 Unix ms）。每次呼叫 `renderDashboard()` 時銷毀並重建圖表實例。

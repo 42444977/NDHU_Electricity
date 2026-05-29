@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宿舍電費追蹤</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <style>
         :root {
             --bg: #EEF2FF;
@@ -488,19 +489,12 @@ function renderChart(sorted) {
     canvas.style.display = '';
     empty.style.display  = 'none';
 
-    const labels = sorted.map(r => {
-        const d = new Date(r.ts);
-        return d.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' }) + '\n' +
-               d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-    });
-
     if (chartInstance) chartInstance.destroy();
     chartInstance = new Chart(canvas.getContext('2d'), {
         type: 'line',
         data: {
-            labels,
             datasets: [{
-                data: sorted.map(r => r.bal),
+                data: sorted.map(r => ({ x: r.ts, y: r.bal })),
                 borderColor: '#4F46E5',
                 backgroundColor: ctx => {
                     const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 210);
@@ -527,13 +521,28 @@ function renderChart(sorted) {
                     backgroundColor: '#1E293B',
                     padding: 10,
                     cornerRadius: 8,
-                    callbacks: { label: ctx => ` 餘額 $${ctx.raw.toFixed(1)}` }
+                    callbacks: {
+                        title: items => {
+                            const d = new Date(items[0].raw.x);
+                            return d.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' }) + ' ' +
+                                   d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+                        },
+                        label: ctx => ` 餘額 $${ctx.raw.y.toFixed(1)}`
+                    }
                 }
             },
             scales: {
                 x: {
+                    type: 'time',
+                    time: {
+                        displayFormats: {
+                            minute: 'H:mm',
+                            hour:   'M/d H:mm',
+                            day:    'M/d',
+                        }
+                    },
                     grid: { color: '#F1F5F9' },
-                    ticks: { color: '#94A3B8', font: { size: 10 }, maxRotation: 35, maxTicksLimit: 10 }
+                    ticks: { color: '#94A3B8', font: { size: 10 }, maxRotation: 35, maxTicksLimit: 10, autoSkip: true }
                 },
                 y: {
                     grid: { color: '#F1F5F9' },
