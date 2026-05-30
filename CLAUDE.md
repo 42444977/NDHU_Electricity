@@ -32,6 +32,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `tierOf(kwh)` — 回傳目前級距編號、費率、標籤，以及距下一級距的剩餘度數
 - `monthlySpent(readings, year, month)` — 加總指定月份內所有餘額「下降」量；餘額「上升」標記為充值，不計入用電
 
+**預測目前餘額**：第一列統計卡片中，「上次紀錄餘額」顯示最新記錄的實際值；下方「預測目前餘額」以本月平均每小時用電費率乘以距上次記錄的時間，從上次記錄餘額扣除推算，得出當前估計值（下限為 0）。需要本月至少兩筆記錄且間距超過 3 分鐘才會顯示。
+
 **已知限制**：若使用者在兩次記錄之間同時充值又消耗電費，只能觀察到餘額淨變化。偵測到餘額增加時會顯示充值警示橫幅，提示前後各記錄一次。
 
 **圖表** — Chart.js 4.x 搭配 `chartjs-adapter-date-fns` 從 CDN（`cdn.jsdelivr.net`）載入。X 軸使用 `type: 'time'` 時間尺度，根據資料涵蓋的時間範圍自動選擇刻度單位（分鐘、小時、天），刻度間距均等。資料點格式為 `{ x: ts, y: bal }`（ts 為 Unix ms）。每次呼叫 `renderDashboard()` 時銷毀並重建圖表實例。
