@@ -651,6 +651,36 @@ function clearAllData() {
     }
 }
 
+// ── 預測餘額獨立更新 ────────────────────────────────────────
+function updatePrediction() {
+    const readings = load();
+    const now = new Date();
+    const year = now.getFullYear(), month = now.getMonth();
+
+    const mrs = readings
+        .filter(r => { const d = new Date(r.ts); return d.getFullYear() === year && d.getMonth() === month; })
+        .sort((a, b) => a.ts - b.ts);
+
+    if (mrs.length < 2) return;
+
+    const { spent } = monthlySpent(readings, year, month);
+    const hoursElapsed = (now - new Date(mrs[0].ts)) / 3600000;
+    if (hoursElapsed <= 0.05) return;
+
+    const sorted = [...readings].sort((a, b) => a.ts - b.ts);
+    if (sorted.length === 0) return;
+
+    const hourlyRate = spent / hoursElapsed;
+    const latest = sorted[sorted.length - 1];
+    const hoursSinceLast = (now - new Date(latest.ts)) / 3600000;
+    const predicted = Math.max(0, latest.bal - hourlyRate * hoursSinceLast);
+    document.getElementById('predictedBalance').textContent = `$${predicted.toFixed(1)}`;
+    const mins = Math.round(hoursSinceLast * 60);
+    document.getElementById('predictedBalanceSub').textContent = mins < 60
+        ? `距上次記錄 ${mins} 分鐘`
+        : `距上次記錄 ${Math.floor(mins / 60)} 小時 ${mins % 60} 分鐘`;
+}
+
 // ── 初始化 ──────────────────────────────────────────────
 document.getElementById('balanceInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') addReading();
@@ -658,6 +688,7 @@ document.getElementById('balanceInput').addEventListener('keydown', e => {
 
 tickClock();
 setInterval(tickClock, 1000);
+setInterval(updatePrediction, 30000);
 renderDashboard();
 </script>
 </body>
